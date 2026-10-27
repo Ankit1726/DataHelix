@@ -1,0 +1,14 @@
+langchain
+langchain-community
+langchain-core
+langchain-groq
+langchain-groq
+langchain-tavily
+
+langgraph
+langgraph-cli
+
+python-dotenv
+fastapi[standard] 
+uvicorn[standard] 
+colorama
