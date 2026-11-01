@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="A live multi-agent research studio powered by DataHelix." />
+  <meta name="theme-color" content="#0b1017" />
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+  <title>DataHelix — Research Studio</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#workspace" aria-label="DataHelix Research Studio home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32" fill="none">
+            <path d="M7 8.5 16 4l9 4.5v15L16 28l-9-4.5v-15Z" />
+            <path d="m7.5 8.8 8.5 4.4 8.5-4.4M16 13.2V27" />
+            <circle cx="16" cy="16.5" r="2.2" />
+          </svg>
+        </span>
+        <span class="brand-copy">
+          <strong>Datahelix 🌐</strong>
+          <small>RESEARCH STUDIO</small>
+        </span>
+      </a>
+
+      <div class="workspace-label">WORKSPACE</div>
+      <nav class="side-nav" aria-label="Main navigation">
+        <a class="nav-link active" href="#workspace">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="3.5" y="3.5" width="7" height="7" rx="1.5" />
+            <rect x="13.5" y="3.5" width="7" height="7" rx="1.5" />
+            <rect x="3.5" y="13.5" width="7" height="7" rx="1.5" />
+            <rect x="13.5" y="13.5" width="7" height="7" rx="1.5" />
+          </svg>
+          <span>Research desk</span>
+          <span class="nav-indicator"></span>
+        </a>
+        <a class="nav-link" href="#workflow">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="6" cy="6" r="2.2" />
+            <circle cx="18" cy="12" r="2.2" />
+            <circle cx="6" cy="18" r="2.2" />
+            <path d="M8.2 6h3a3 3 0 0 1 3 3v.2M8.2 18h3a3 3 0 0 0 3-3v-.8" />
+          </svg>
+          <span>Workflow</span>
+        </a>
+        <a class="nav-link" href="#integrations">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M8 7.5h8M8 12h8m-8 4.5h5" />
+            <rect x="4" y="3.5" width="16" height="17" rx="2.5" />
+          </svg>
+          <span>Stack &amp; status</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="workspace-card">
+          <span class="workspace-icon">DH</span>
+          <span class="workspace-copy"><strong>Demo workspace</strong><small>Personal project</small></span>
+          <span class="more-dots" aria-hidden="true">···</span>
+        </div>
+        <div class="sidebar-note">
+          <span class="note-icon" aria-hidden="true">✦</span>
+          <p>Turn a big question into a clearer point of view.</p>
+        </div>
+        <div class="profile-row">
+          <span class="avatar">D</span>
+          <span class="profile-copy"><strong>Demo researcher</strong><small>Showcase mode</small></span>
+          <span class="profile-status" title="Local workspace"></span>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-content" id="workspace">
+      <header class="topbar">
+        <button class="menu-button" id="menu-button" aria-label="Toggle navigation" aria-expanded="false">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="breadcrumb"><span>Workspace</span><span class="breadcrumb-slash">/</span><strong>Research
+            desk</strong></div>
+        <div class="topbar-actions">
+          <span class="environment-pill"><span class="tiny-dot"></span> LIVE WORKSPACE</span>
+          <span class="topbar-divider"></span>
+          <span class="topbar-date" id="today-date"></span>
+        </div>
+      </header>
+
+      <div class="page-content">
+        <section class="welcome-row">
+          <div>
+            <div class="eyebrow"><span class="eyebrow-line"></span> MULTI-AGENT RESEARCH</div>
+            <h1>Good research starts<br class="mobile-break" /> with a <span>better question.</span></h1>
+            <p class="welcome-copy">Bring a topic. Your analyst team will find the angles, gather sources, and shape the
+              findings into a report.</p>
+          </div>
+          <div class="welcome-meta">
+            <span class="live-pulse"></span>
+            <span>Research engine</span>
+            <strong id="engine-status">Connecting…</strong>
+          </div>
+        </section>
+
+        <section class="workspace-grid">
+          <div class="primary-column">
+            <section class="panel research-panel" aria-labelledby="research-title">
+              <div class="panel-heading">
+                <div class="panel-heading-icon">
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <circle cx="10.8" cy="10.8" r="6.3" />
+                    <path d="m15.4 15.4 4.3 4.3M8.5 11h4.6M10.8 8.7v4.6" />
+                  </svg>
+                </div>
+                <div>
+                  <div class="section-kicker">NEW INVESTIGATION</div>
+                  <h2 id="research-title">What are we looking into?</h2>
+                </div>
+                <span class="panel-step">01 <span>/ 03</span></span>
+              </div>
+
+              <form id="research-form">
+                <label class="field-label" for="topic">Research question</label>
+                <div class="topic-field">
+                  <span class="topic-symbol" aria-hidden="true">⌕</span>
+                  <textarea id="topic" name="topic" rows="3" minlength="3" maxlength="500" required
+                    placeholder="e.g. How is generative AI changing the future of customer support?"></textarea>
+                  <span class="character-count" id="character-count">0 / 500</span>
+                </div>
+                <div class="topic-hint"><span class="hint-dot"></span> Be specific for more focused, useful findings.
+                </div>
+
+                <div class="form-footer">
+                  <label class="analyst-select-label" for="analyst-count">
+                    <span class="analyst-icon" aria-hidden="true">◉</span>
+                    Analyst team
+                    <select id="analyst-count" name="max_analysts">
+                      <option value="1">1 analyst</option>
+                      <option value="2" selected>2 analysts</option>
+                      <option value="3">3 analysts</option>
+                    </select>
+                  </label>
+                  <button class="button button-primary" id="launch-button" type="submit">
+                    <span>Launch research</span>
+                    <svg viewBox="0 0 20 20" aria-hidden="true">
+                      <path d="M4 10h11m-4.5-4.5L15 10l-4.5 4.5" />
+                    </svg>
+                  </button>
+                </div>
+                <p class="form-error" id="form-error" role="alert" hidden></p>
+              </form>
+
+              <div class="prompt-divider"><span>OR START WITH A PROMPT</span></div>
+              <div class="prompt-chips" aria-label="Example research topics">
+                <button type="button" class="prompt-chip"
+                  data-topic="How are AI copilots changing software development teams?">AI in software teams
+                  <span>↗</span></button>
+                <button type="button" class="prompt-chip"
+                  data-topic="What are the most promising approaches to reducing food waste in cities?">Urban food waste
+                  <span>↗</span></button>
+                <button type="button" class="prompt-chip"
+                  data-topic="How is the creator economy evolving with short-form video?">Creator economy
+                  <span>↗</span></button>
+              </div>
+            </section>
+
+            <section class="panel activity-panel" id="activity-panel" aria-labelledby="activity-title" hidden>
+              <div class="panel-heading activity-heading">
+                <div>
+                  <div class="section-kicker">CURRENT INVESTIGATION</div>
+                  <h2 id="activity-title">Research activity</h2>
+                </div>
+                <span class="run-status" id="run-status"><span class="tiny-dot"></span><span
+                    id="run-status-text">Preparing</span></span>
+              </div>
+              <p class="activity-topic" id="activity-topic"></p>
+              <div class="progress-track" aria-hidden="true"><span id="progress-fill"></span></div>
+              <div class="workflow-steps" id="workflow-steps">
+                <div class="workflow-step" data-step="analysts"><span class="step-number">01</span><span
+                    class="step-text"><strong>Find the angles</strong><small>Building a team of research
+                      perspectives</small></span><span class="step-state"></span></div>
+                <div class="workflow-step" data-step="approval"><span class="step-number">02</span><span
+                    class="step-text"><strong>Review the analysts</strong><small>You decide when the research
+                      starts</small></span><span class="step-state"></span></div>
+                <div class="workflow-step" data-step="research"><span class="step-number">03</span><span
+                    class="step-text"><strong>Gather the evidence</strong><small>Searching sources and building
+                      insights</small></span><span class="step-state"></span></div>
+                <div class="workflow-step" data-step="report"><span class="step-number">04</span><span
+                    class="step-text"><strong>Shape the report</strong><small>Bringing findings
+                      together</small></span><span class="step-state"></span></div>
+              </div>
+              <div class="analysts-section" id="analysts-section" hidden>
+                <div class="result-section-title"><span>YOUR ANALYST TEAM</span><span id="analyst-total"></span></div>
+                <div class="analyst-grid" id="analyst-grid"></div>
+                <div class="approval-controls" id="approval-controls" hidden>
+                  <label for="analyst-feedback">Want a different perspective? Leave a note and ask for a
+                    refresh.</label>
+                  <textarea id="analyst-feedback" rows="2" maxlength="500"
+                    placeholder="Optional feedback before continuing, or add notes above and request revised analysts."></textarea>
+                  <div class="approval-actions">
+                    <button class="button button-quiet" id="revise-button" type="button">Request revisions</button>
+                    <button class="button button-primary" id="approve-button" type="button">Looks good — start research
+                      <span>→</span></button>
+                  </div>
+                </div>
+              </div>
+              <div class="report-section" id="report-section" hidden>
+                <div class="result-section-title"><span>FINAL RESEARCH REPORT</span><button class="copy-button"
+                    id="copy-report" type="button">Copy report</button></div>
+                <div class="report-content" id="report-content"></div>
+              </div>
+              <div class="run-error" id="run-error" role="alert" hidden></div>
+            </section>
+          </div>
+
+          <aside class="secondary-column">
+            <section class="panel status-panel" id="integrations">
+              <div class="panel-heading compact-heading">
+                <div>
+                  <div class="section-kicker">SYSTEM OVERVIEW</div>
+                  <h2>Service configuration</h2>
+                </div>
+                <span class="status-orbit" aria-hidden="true"><span></span></span>
+              </div>
+              <div class="stack-list">
+                <div class="stack-row">
+                  <span class="stack-icon model-icon">✳</span>
+                  <span class="stack-copy"><strong>Groq</strong><small>LLM inference</small></span>
+                  <span class="connection-state" data-service="GROQ_API_KEY"><i></i><span>Checking</span></span>
+                </div>
+                <div class="stack-row">
+                  <span class="stack-icon search-icon">⌕</span>
+                  <span class="stack-copy"><strong>Tavily</strong><small>Web research</small></span>
+                  <span class="connection-state" data-service="TAVILY_API_KEY"><i></i><span>Checking</span></span>
+                </div>
+                <div class="stack-row">
+                  <span class="stack-icon graph-icon">⌘</span>
+                  <span class="stack-copy"><strong>LangGraph</strong><small>Agent orchestration</small></span>
+                  <span class="connection-state local-state"><i></i><span>Ready</span></span>
+                </div>
+              </div>
+              <div class="system-footnote" id="health-note">Checking server configuration…</div>
+            </section>
+
+            <section class="panel workflow-panel" id="workflow">
+              <div class="panel-heading compact-heading">
+                <div>
+                  <div class="section-kicker">HOW IT WORKS</div>
+                  <h2>From question to clarity</h2>
+                </div>
+                <span class="workflow-count">04 STEPS</span>
+              </div>
+              <div class="mini-flow">
+                <div class="mini-flow-item"><span class="mini-flow-number">01</span><span
+                    class="mini-flow-content"><strong>Choose a topic</strong><small>Start with the question that
+                      matters.</small></span></div>
+                <span class="flow-connector"></span>
+                <div class="mini-flow-item"><span class="mini-flow-number">02</span><span
+                    class="mini-flow-content"><strong>Shape the team</strong><small>Review the analyst
+                      perspectives.</small></span></div>
+                <span class="flow-connector"></span>
+                <div class="mini-flow-item"><span class="mini-flow-number">03</span><span
+                    class="mini-flow-content"><strong>Explore the evidence</strong><small>Agents research in
+                      parallel.</small></span></div>
+                <span class="flow-connector"></span>
+                <div class="mini-flow-item"><span class="mini-flow-number">04</span><span
+                    class="mini-flow-content"><strong>Read the report</strong><small>Bring the findings into
+                      focus.</small></span></div>
+              </div>
+            </section>
+
+            <section class="privacy-note">
+              <span class="privacy-icon" aria-hidden="true">◈</span>
+              <p><strong>Live, not staged.</strong> Results come from the configured research workflow. No sample report
+                is presented as a real run.</p>
+            </section>
+          </aside>
+        </section>
+
+        <footer class="page-footer">
+          <span>DATAHELIX <span class="footer-divider">·</span> RESEARCH STUDIO</span>
+          <span>Crafted with <span class="footer-heart" aria-hidden="true">♥</span> by Ankit</span>
+        </footer>
+      </div>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="/static/app.js" defer></script>
+</body>
+
+</html>

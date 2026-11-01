@@ -3,7 +3,7 @@ from src.agent.utils.object import Analyst
 
 from typing import List, Optional
 from langgraph.graph import MessagesState
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from typing_extensions import NotRequired, TypedDict, Annotated
 
 
@@ -11,7 +11,7 @@ class GenerateAnalystsState(TypedDict):
     topic: str  # Research topic
     max_analysts: int  # Number of analysts
     human_analyst_feedback: NotRequired[Optional[str]]  # Human feedback
-    analysts: NotRequired[List[Analyst]]  # Analyst asking questions
+    analysts: NotRequired[List[dict[str, str]]]  # Analyst asking questions
 
 
 class InterviewState(MessagesState):
@@ -23,14 +23,16 @@ class InterviewState(MessagesState):
 
 
 class SearchQuery(BaseModel):
-    search_query: str = Field(None, description="Search query for retrieval.")
+    model_config = ConfigDict(extra="forbid")
+
+    search_query: str = Field(description="Search query for retrieval.")
 
 
 class ResearchGraphState(TypedDict):
     topic: str  # Research topic
     max_analysts: int  # Number of analysts
     human_analyst_feedback: NotRequired[Optional[str]]  # Human feedback
-    analysts: List[Analyst]  # Analyst asking questions
+    analysts: List[dict[str, str]]  # Analyst asking questions
     sections: Annotated[list, operator.add]  # Send() API key
     introduction: str  # Introduction for the final report
     content: str  # Content for the final report
