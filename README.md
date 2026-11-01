@@ -132,76 +132,6 @@
 
 ---
 
-### ***📁 Project Structure***
-
-> ✏️ Update this tree to match your actual repository.
-
-```text
-Datahelix/
-│
-├── preview/
-│   ├── agent_architecture.png     # Architecture diagram
-│   └── live.png                   # Project UI screenshot
-│
-├── src/
-│   ├── graph.py                   # LangGraph workflow (nodes, edges, parallel branches)
-│   ├── analysts.py                # Analyst persona generation
-│   ├── research.py                # Evidence gathering with Tavily + Groq
-│   ├── report.py                  # Final report generation
-│   ├── config.py                  # Environment settings and API key checks
-│   └── main.py                    # Application entrypoint / API routes
-│
-├── ui/
-│   ├── static/                    # CSS, JS, assets
-│   └── templates/                 # HTML templates
-│
-├── .dockerignore
-├── .env                           # Environment variables (not committed)
-├── .gitignore
-├── Dockerfile                     # Docker configuration
-├── requirements.txt               # Python dependencies
-└── run.py                         # Run the application
-```
-
----
-
-### ***⚙️ Run Locally***
-
-```bash
-# 1. Clone the repository
-git clone https://github.com/<your-username>/Datahelix.git
-cd Datahelix
-
-# 2. Create a virtual environment
-python -m venv venv
-source venv/bin/activate        # Windows: venv\Scripts\activate
-
-# 3. Install dependencies
-pip install -r requirements.txt
-
-# 4. Add your API keys
-cp .env.example .env
-```
-
-```env
-GROQ_API_KEY=your_groq_key
-TAVILY_API_KEY=your_tavily_key
-```
-
-```bash
-# 5. Start the app
-python run.py
-```
-
-Run with Docker:
-
-```bash
-docker build -t datahelix .
-docker run -p 8000:8000 --env-file .env datahelix
-```
-
----
-
 ### ***🧪 Why Human-in-the-Loop Matters***
 
 Fully automatic research can drift in the wrong direction. Datahelix pauses after generating the analyst team so you can check the angles before any search budget is spent.
@@ -270,7 +200,7 @@ Question → Analyst team generated
 
 <div align="center">
 
-# ***ANKIT GUPTA 👦***
+## ***ANKIT GUPTA 👦***
 
 ### ***AI Engineer • AI Backend Developer • GenAI Developer***
 
