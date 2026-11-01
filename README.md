@@ -101,8 +101,6 @@
 | 3 | **Gather the evidence** | Analysts search sources and build insights in parallel |
 | 4 | **Shape the report** | Bring all findings together into a single report |
 
-> 📐 Architecture diagram: see [`preview/agent_architecture.png`](./preview/agent_architecture.png)
-
 ---
 
 ### ***💡 Example Questions***
