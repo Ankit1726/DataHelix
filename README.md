@@ -38,9 +38,7 @@
 
 ### ***🌐 Live Demo***
 
-***Web Application 👉 [Datahelix Research Studio](https://datahelix.onrender.com/)***
-
-> ⏳ Hosted on a free tier: the first load may take up to a minute (cold start).
+***Web Application 👉 [Datahelix](https://datahelix.onrender.com)***
 
 ---
 
