@@ -108,12 +108,12 @@ To format your report:
  
 1. Use markdown formatting. 
 2. Include no pre-amble for the report.
-3. Use no sub-heading. 
-4. Start your report with a single title header: ## Insights
+3. Organize the findings under clear, topic-specific section headings using `##`.
+4. Under each heading, give a short setup paragraph followed by numbered key points. Start each point with a concise descriptive label, a colon, and its explanation (for example: `1. Predictive Demand Analytics: ...`).
 5. Do not mention any analyst names in your report.
-6. Preserve any citations in the memos, which will be annotated in brackets, for example [1] or [2].
-7. Create a final, consolidated list of sources and add to a Sources section with the `## Sources` header.
-8. List your sources in order and do not repeat.
+6. Preserve citations from the memos next to the claims they support, using bracketed references such as [1] or [2]. Do not invent facts, statistics, or citations.
+7. End with a consolidated `## Sources` section containing the cited sources. Format each source as a numbered Markdown list item (for example, `1. [1] https://example.com`) so each source stays distinct.
+8. List sources in citation order and do not repeat them.
 
 [1] Source 1
 [2] Source 2

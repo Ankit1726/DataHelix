@@ -3,7 +3,7 @@ const topicInput = document.querySelector("#topic");
 const characterCount = document.querySelector("#character-count");
 const launchButton = document.querySelector("#launch-button");
 const formError = document.querySelector("#form-error");
-const activityPanel = document.querySelector("#activity-panel");
+const activityPanel = document.querySelector("#workflow");
 const activityTopic = document.querySelector("#activity-topic");
 const statusBadge = document.querySelector("#run-status");
 const statusText = document.querySelector("#run-status-text");
@@ -44,15 +44,24 @@ document.querySelectorAll(".prompt-chip").forEach((button) => {
   });
 });
 
-document.querySelectorAll(".nav-link").forEach((link) => {
+const navLinks = document.querySelectorAll(".nav-link");
+
+navLinks.forEach((link) => {
   link.addEventListener("click", () => {
-    document.querySelectorAll(".nav-link").forEach((item) => {
-      item.classList.toggle("active", item === link);
-    });
     sidebar.classList.remove("open");
     menuButton.setAttribute("aria-expanded", "false");
   });
 });
+
+function updateActiveNavigation() {
+  const activeHash = window.location.hash || "#workspace";
+  navLinks.forEach((link) => {
+    link.classList.toggle("active", link.hash === activeHash);
+  });
+}
+
+window.addEventListener("hashchange", updateActiveNavigation);
+updateActiveNavigation();
 
 menuButton.addEventListener("click", () => {
   const isOpen = sidebar.classList.toggle("open");
@@ -395,6 +404,7 @@ function setLaunchState(isBusy) {
 
 function setProgress(status) {
   const states = {
+    idle: { active: null, done: [], percent: 0 },
     starting: { active: "analysts", done: [], percent: 8 },
     generating_analysts: { active: "analysts", done: [], percent: 22 },
     awaiting_approval: { active: "approval", done: ["analysts"], percent: 38 },

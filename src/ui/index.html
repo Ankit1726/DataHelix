@@ -7,7 +7,7 @@
   <meta name="description" content="A live multi-agent research studio powered by DataHelix." />
   <meta name="theme-color" content="#0b1017" />
   <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
-  <title>DataHelix — Research Studio</title>
+  <title>DataHelix🌐 Research Studio</title>
   <link rel="stylesheet" href="/static/styles.css" />
 </head>
 
@@ -167,16 +167,16 @@
               </div>
             </section>
 
-            <section class="panel activity-panel" id="activity-panel" aria-labelledby="activity-title" hidden>
+            <section class="panel activity-panel" id="workflow" aria-labelledby="activity-title">
               <div class="panel-heading activity-heading">
                 <div>
-                  <div class="section-kicker">CURRENT INVESTIGATION</div>
-                  <h2 id="activity-title">Research activity</h2>
+                  <div class="section-kicker">LIVE WORKFLOW</div>
+                  <h2 id="activity-title">Research workflow</h2>
                 </div>
-                <span class="run-status" id="run-status"><span class="tiny-dot"></span><span
-                    id="run-status-text">Preparing</span></span>
+                <span class="run-status" id="run-status" data-state="idle"><span class="tiny-dot"></span><span
+                    id="run-status-text">Idle</span></span>
               </div>
-              <p class="activity-topic" id="activity-topic"></p>
+              <p class="activity-topic" id="activity-topic">Launch a research run to see its live status and report here.</p>
               <div class="progress-track" aria-hidden="true"><span id="progress-fill"></span></div>
               <div class="workflow-steps" id="workflow-steps">
                 <div class="workflow-step" data-step="analysts"><span class="step-number">01</span><span
@@ -243,33 +243,6 @@
                 </div>
               </div>
               <div class="system-footnote" id="health-note">Checking server configuration…</div>
-            </section>
-
-            <section class="panel workflow-panel" id="workflow">
-              <div class="panel-heading compact-heading">
-                <div>
-                  <div class="section-kicker">HOW IT WORKS</div>
-                  <h2>From question to clarity</h2>
-                </div>
-                <span class="workflow-count">04 STEPS</span>
-              </div>
-              <div class="mini-flow">
-                <div class="mini-flow-item"><span class="mini-flow-number">01</span><span
-                    class="mini-flow-content"><strong>Choose a topic</strong><small>Start with the question that
-                      matters.</small></span></div>
-                <span class="flow-connector"></span>
-                <div class="mini-flow-item"><span class="mini-flow-number">02</span><span
-                    class="mini-flow-content"><strong>Shape the team</strong><small>Review the analyst
-                      perspectives.</small></span></div>
-                <span class="flow-connector"></span>
-                <div class="mini-flow-item"><span class="mini-flow-number">03</span><span
-                    class="mini-flow-content"><strong>Explore the evidence</strong><small>Agents research in
-                      parallel.</small></span></div>
-                <span class="flow-connector"></span>
-                <div class="mini-flow-item"><span class="mini-flow-number">04</span><span
-                    class="mini-flow-content"><strong>Read the report</strong><small>Bring the findings into
-                      focus.</small></span></div>
-              </div>
             </section>
 
             <section class="privacy-note">
