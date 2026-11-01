@@ -48,6 +48,7 @@
 <img src="./preview/live.png" width="100%" alt="Datahelix UI Preview">
 </p>
 
+### ***📸 Project Results***
 <p align="center">
 <img src="./preview/result.png" width="100%" alt="Datahelix UI Preview">
 </p>
@@ -56,18 +57,18 @@
 
 ### ***✅ What Datahelix Can Do***
 
-- 🔎 Turn one research question into a focused investigation (up to 500 characters)
-- 👥 Generate a team of analysts, each with a distinct perspective (choose team size)
-- ✋ Human-in-the-loop: review the analyst team before research starts
-- ⚡ Parallel research: analysts gather evidence at the same time
-- 🌐 Live web research through Tavily
-- 🧾 Final structured report that combines all findings
-- 📊 Research activity tracker showing the current stage
-- ⚙️ Service configuration panel showing Groq, Tavily and LangGraph status
-- 🔑 Optional per-run Groq and Tavily keys; personal Groq keys are used when the shared key is missing or rate-limited, and personal Tavily keys are used when the shared key is missing or fails
-- 🧠 User-selectable Groq model ID, so users can choose models available to their Groq account
-- 💡 One-click starter prompts (AI in software teams, Urban food waste, Creator economy)
-- 🌑 Modern dark-theme interface
+- 🔎 Turn one research question into a focused investigation (up to 500 characters).
+- 👥 Generate a team of analysts, each with a distinct perspective (choose team size).
+- ✋ Human-in-the-loop: review the analyst team before research starts.
+- ⚡ Parallel research: analysts gather evidence at the same time.
+- 🌐 Live web research through Tavily.
+- 🧾 Final structured report that combines all findings.
+- 📊 Research activity tracker showing the current stage.
+- ⚙️ Service configuration panel showing Groq, Tavily and LangGraph status.
+- 🔑 Optional per-run Groq and Tavily keys user enter externally.
+- 🧠 User-selectable Groq model ID, so users can choose models available to their Groq account.
+- 💡 One-click starter prompts (AI in software teams, Urban food waste, Creator economy).
+- 🌑 Modern dark-theme interface.
 
 ---
 
