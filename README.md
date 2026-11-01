@@ -48,6 +48,10 @@
 <img src="./preview/live.png" width="100%" alt="Datahelix UI Preview">
 </p>
 
+<p align="center">
+<img src="./preview/result.png" width="100%" alt="Datahelix UI Preview">
+</p>
+
 ---
 
 ### ***✅ What Datahelix Can Do***
