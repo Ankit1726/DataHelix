@@ -70,7 +70,6 @@ form.addEventListener("submit", async (event) => {
   }
 
   setLaunchState(true);
-  resetActivity(topic);
   try {
     const result = await request("/api/research", {
       method: "POST",
@@ -79,6 +78,7 @@ form.addEventListener("submit", async (event) => {
         max_analysts: Number(document.querySelector("#analyst-count").value),
       }),
     });
+    resetActivity(topic);
     activeJobId = result.id;
     storeActiveJob(activeJobId);
     await pollJob();
