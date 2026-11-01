@@ -7,6 +7,7 @@ from fastapi.testclient import TestClient
 import main
 from src.agent.utils.llm import GroqModelRuntime, invoke_model
 from src.agent.utils.object import Analyst, Perspectives
+from src.agent.utils.search import SearchRuntime
 
 
 class RateLimitError(Exception):
@@ -87,8 +88,30 @@ class GroqFallbackTests(unittest.TestCase):
 
             self.assertEqual(runtime.invoke(["prompt"]), "personal result")
 
-        create_model.assert_called_once_with("personal-key", max_retries=5)
+        create_model.assert_called_once_with(
+            "personal-key",
+            model_name="openai/gpt-oss-20b",
+            max_retries=5,
+        )
         self.assertEqual(personal_model.calls, 1)
+
+    def test_custom_model_is_used_for_shared_and_personal_keys(self):
+        server_model = FakeModel(result="server result")
+        with (
+            patch.dict(os.environ, {"GROQ_API_KEY": "server-key"}),
+            patch(
+                "src.agent.utils.llm._create_model",
+                return_value=server_model,
+            ) as create_model,
+        ):
+            runtime = GroqModelRuntime("personal-key", "custom/model-id")
+            self.assertEqual(runtime.invoke(["prompt"]), "server result")
+
+        create_model.assert_called_once_with(
+            "server-key",
+            model_name="custom/model-id",
+            max_retries=1,
+        )
 
     def test_a_key_is_required(self):
         with patch.dict(os.environ, {}, clear=True):
@@ -166,8 +189,9 @@ class ResearchApiTests(unittest.TestCase):
         self.assertTrue(response.json()["personal_groq_key_supported"])
         self.assertTrue(response.json()["services"]["GROQ_API_KEY"])
         self.assertTrue(response.json()["services"]["TAVILY_API_KEY"])
+        self.assertNotIn("SERPAPI_API_KEY", response.json()["services"])
 
-    def test_personal_key_is_accepted_but_never_returned(self):
+    def test_personal_keys_and_model_are_run_scoped_and_never_returned(self):
         job_id = None
         with (
             patch.dict(
@@ -190,6 +214,8 @@ class ResearchApiTests(unittest.TestCase):
                     "topic": "A test research question",
                     "max_analysts": 1,
                     "groq_api_key": "  personal-test-key  ",
+                    "tavily_api_key": " personal-tavily-key ",
+                    "groq_model": " custom/model-id ",
                 },
             )
             self.assertEqual(response.status_code, 202)
@@ -200,9 +226,18 @@ class ResearchApiTests(unittest.TestCase):
             self.assertEqual(job_response.status_code, 200)
             self.assertNotIn("groq_api_key", job_response.text)
             self.assertNotIn("personal-test-key", job_response.text)
+            self.assertNotIn("personal-tavily-key", job_response.text)
             self.assertEqual(
                 main._jobs[job_id].groq_runtime._personal_api_key,
                 "personal-test-key",
+            )
+            self.assertEqual(
+                main._jobs[job_id].groq_runtime._model_name,
+                "custom/model-id",
+            )
+            self.assertEqual(
+                main._jobs[job_id].search_runtime._personal_tavily_api_key,
+                "personal-tavily-key",
             )
 
         if job_id is not None:
@@ -222,6 +257,48 @@ class ResearchApiTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 503)
         self.assertIn("Enter your Groq API key above", response.json()["detail"])
+
+    def test_missing_search_key_has_actionable_error(self):
+        with (
+            patch.dict(
+                os.environ,
+                {"GROQ_API_KEY": "server-groq-key"},
+                clear=True,
+            ),
+            TestClient(main.app) as client,
+        ):
+            response = client.post(
+                "/api/research",
+                json={"topic": "A test research question", "max_analysts": 1},
+            )
+
+        self.assertEqual(response.status_code, 503)
+        self.assertIn("Enter your Tavily API key", response.json()["detail"])
+
+
+class SearchRuntimeTests(unittest.TestCase):
+    def test_personal_tavily_key_is_tried_after_shared_key_fails(self):
+        with patch.dict(os.environ, {"TAVILY_API_KEY": "shared-tavily-key"}):
+            runtime = SearchRuntime(personal_tavily_api_key="personal-tavily-key")
+        with patch(
+            "src.agent.utils.search._search_tavily",
+            side_effect=[
+                RuntimeError("shared key rejected"),
+                [{"url": "https://example.com", "content": "result"}],
+            ],
+        ) as search_tavily:
+            runtime.search("test query", max_results=3)
+
+        self.assertEqual(
+            [call.args[1] for call in search_tavily.call_args_list],
+            ["shared-tavily-key", "personal-tavily-key"],
+        )
+
+    def test_cleared_runtime_does_not_retain_personal_keys(self):
+        runtime = SearchRuntime(personal_tavily_api_key="personal-tavily-key")
+        runtime.clear()
+
+        self.assertEqual(runtime._personal_tavily_api_key, "")
 
 
 if __name__ == "__main__":

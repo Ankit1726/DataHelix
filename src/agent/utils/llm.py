@@ -12,9 +12,11 @@ load_dotenv()
 MODEL_NAME = "openai/gpt-oss-20b"
 
 
-def _create_model(api_key: str, max_retries: int = 1) -> ChatGroq:
+def _create_model(
+    api_key: str, model_name: str = MODEL_NAME, max_retries: int = 1
+) -> ChatGroq:
     return ChatGroq(
-        model=MODEL_NAME,
+        model=model_name,
         api_key=api_key,
         max_retries=max_retries,
         rate_limiter=InMemoryRateLimiter(
@@ -35,10 +37,15 @@ def _is_rate_limit_error(error: Exception) -> bool:
 
 
 class GroqModelRuntime:
-    def __init__(self, personal_api_key: str | None = None):
+    def __init__(
+        self,
+        personal_api_key: str | None = None,
+        model_name: str = MODEL_NAME,
+    ):
         server_api_key = os.getenv("GROQ_API_KEY", "").strip()
+        self._model_name = model_name
         self._server_model = (
-            _create_model(server_api_key, max_retries=1)
+            _create_model(server_api_key, model_name=model_name, max_retries=1)
             if server_api_key
             else None
         )
@@ -56,7 +63,9 @@ class GroqModelRuntime:
     def _get_personal_model(self) -> ChatGroq:
         if self._personal_model is None:
             self._personal_model = _create_model(
-                self._personal_api_key, max_retries=5
+                self._personal_api_key,
+                model_name=self._model_name,
+                max_retries=5,
             )
         return self._personal_model
 

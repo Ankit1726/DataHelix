@@ -14,7 +14,8 @@ from fastapi.staticfiles import StaticFiles
 from langgraph.types import Command
 from pydantic import BaseModel, Field, SecretStr, field_validator
 
-from src.agent.utils.llm import GroqModelRuntime
+from src.agent.utils.llm import MODEL_NAME, GroqModelRuntime
+from src.agent.utils.search import SearchRuntime
 
 load_dotenv()
 
@@ -23,7 +24,6 @@ logger = logging.getLogger(__name__)
 
 ROOT = Path(__file__).resolve().parent
 SERVICE_KEYS = ("GROQ_API_KEY", "TAVILY_API_KEY")
-REQUIRED_KEYS = ("TAVILY_API_KEY",)
 MAX_ACTIVE_JOBS = 1
 MAX_RETAINED_JOBS = 50
 
@@ -43,26 +43,42 @@ class ResearchJob:
     groq_runtime: GroqModelRuntime | None = field(
         default=None, repr=False, compare=False
     )
+    search_runtime: SearchRuntime | None = field(
+        default=None, repr=False, compare=False
+    )
 
 
 class ResearchRequest(BaseModel):
     topic: str = Field(min_length=3, max_length=500)
     max_analysts: int = Field(default=2, ge=1, le=3, strict=True)
     groq_api_key: SecretStr | None = None
+    tavily_api_key: SecretStr | None = None
+    groq_model: str = Field(default=MODEL_NAME, min_length=1, max_length=200)
 
     @field_validator("topic", mode="before")
     @classmethod
     def normalize_topic(cls, value: Any) -> Any:
         return value.strip() if isinstance(value, str) else value
 
-    @field_validator("groq_api_key", mode="before")
+    @field_validator(
+        "groq_api_key",
+        "tavily_api_key",
+        mode="before",
+    )
     @classmethod
-    def normalize_groq_api_key(cls, value: Any) -> Any:
+    def normalize_api_key(cls, value: Any) -> Any:
         if isinstance(value, str):
             value = value.strip()
             if len(value) > 512:
-                raise ValueError("Groq API keys must be 512 characters or fewer.")
+                raise ValueError("API keys must be 512 characters or fewer.")
             return value or None
+        return value
+
+    @field_validator("groq_model", mode="before")
+    @classmethod
+    def normalize_groq_model(cls, value: Any) -> Any:
+        if isinstance(value, str):
+            return value.strip() or MODEL_NAME
         return value
 
 
@@ -127,6 +143,9 @@ def _clear_job_runtime(job_id: str) -> None:
         if job is not None and job.groq_runtime is not None:
             job.groq_runtime.clear()
             job.groq_runtime = None
+        if job is not None and job.search_runtime is not None:
+            job.search_runtime.clear()
+            job.search_runtime = None
 
 
 def _failure_message(error: Exception, stage: str) -> str:
@@ -139,12 +158,11 @@ def _failure_message(error: Exception, stage: str) -> str:
     if status_code == 404 and (
         "model_not_found" in message or "model" in error_type
     ):
-        return (
-            "The configured Groq model was not found. Check the model ID in "
-            "src/agent/utils/llm.py."
-        )
+        return "The selected Groq model was not found. Check the model ID and try another available model."
     if status_code == 429:
         return "A provider rate limit was reached. Check your Groq key or wait a little and try again."
+    if "tavily search failed with all configured keys" in message:
+        return "Tavily search failed. Check the configured keys and provider quota."
     if "timeout" in error_type or isinstance(error, TimeoutError):
         return "A research provider timed out. Please try again."
     return f"{stage} failed. Check provider setup and server logs."
@@ -196,6 +214,7 @@ def _run_research(job_id: str) -> None:
             "configurable": {
                 "thread_id": job.id,
                 "groq_runtime": job.groq_runtime,
+                "search_runtime": job.search_runtime,
             }
         }
         graph.invoke(
@@ -229,6 +248,7 @@ def _resume_research(job_id: str, response: str) -> None:
             "configurable": {
                 "thread_id": job.id,
                 "groq_runtime": job.groq_runtime,
+                "search_runtime": job.search_runtime,
             }
         }
         graph.invoke(Command(resume=response), config)
@@ -259,6 +279,7 @@ def health() -> dict[str, Any]:
         "status": "ok",
         "ready": configured["TAVILY_API_KEY"],
         "personal_groq_key_supported": True,
+        "personal_tavily_key_supported": True,
         "services": configured,
     }
 
@@ -273,15 +294,19 @@ def start_research(
         if payload.groq_api_key is not None
         else None
     )
-    missing_service_keys = [
-        key for key in REQUIRED_KEYS if not os.getenv(key, "").strip()
-    ]
-    if missing_service_keys:
+    personal_tavily_key = (
+        payload.tavily_api_key.get_secret_value()
+        if payload.tavily_api_key is not None
+        else None
+    )
+    has_search_key = bool(
+        os.getenv("TAVILY_API_KEY", "").strip() or personal_tavily_key
+    )
+    if not has_search_key:
         raise HTTPException(
             status_code=503,
             detail=(
-                "Research is unavailable until these server settings are configured: "
-                f"{', '.join(missing_service_keys)}."
+                "Enter your Tavily API key above, or configure TAVILY_API_KEY on the server."
             ),
         )
     if not os.getenv("GROQ_API_KEY", "").strip() and not personal_key:
@@ -292,7 +317,6 @@ def start_research(
             ),
         )
 
-    groq_runtime = GroqModelRuntime(personal_key)
     with _jobs_lock:
         active_jobs = sum(
             job.status
@@ -328,11 +352,14 @@ def start_research(
                 ),
             )
 
+        groq_runtime = GroqModelRuntime(personal_key, payload.groq_model)
+        search_runtime = SearchRuntime(personal_tavily_key)
         job = ResearchJob(
             id=str(uuid.uuid4()),
             topic=payload.topic,
             max_analysts=payload.max_analysts,
             groq_runtime=groq_runtime,
+            search_runtime=search_runtime,
         )
         _jobs[job.id] = job
 

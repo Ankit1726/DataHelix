@@ -136,9 +136,20 @@
                   <label class="field-label" for="groq-api-key">Your Groq API key <span>(optional)</span></label>
                   <input id="groq-api-key" name="groq_api_key" type="password" maxlength="512" autocomplete="off"
                     spellcheck="false" placeholder="enter your groq key">
-                  <p class="api-key-hint">Used automatically if the shared Groq key is unavailable or rate-limited.</p>
+                  <p class="api-key-hint">Used automatically if the shared Groq key is rate-limited.</p>
                 </div>
-
+                <div class="api-key-field">
+                  <label class="field-label" for="groq-model">Groq model name</label>
+                  <input id="groq-model" name="groq_model" type="text" maxlength="200" autocomplete="off"
+                    spellcheck="false" value="openai/gpt-oss-20b" placeholder="enter your model name">
+                  <p class="api-key-hint">Choose any model ID currently available to your Groq account.</p>
+                </div>
+                <div class="api-key-field">
+                  <label class="field-label" for="tavily-api-key">Your Tavily API key <span>(optional)</span></label>
+                  <input id="tavily-api-key" name="tavily_api_key" type="password" maxlength="512" autocomplete="off"
+                    spellcheck="false" placeholder="enter your tavily key">
+                  <p class="api-key-hint">Used if the shared Tavily key is missing or fails.</p>
+                </div>
                 <div class="form-footer">
                   <label class="analyst-select-label" for="analyst-count">
                     <span class="analyst-icon" aria-hidden="true">◉</span>

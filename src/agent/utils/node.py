@@ -1,5 +1,4 @@
 from langchain.messages import SystemMessage, HumanMessage
-from langchain_tavily import TavilySearch
 from langgraph.types import interrupt
 from langchain_core.messages import get_buffer_string
 from langchain_core.runnables import RunnableConfig
@@ -21,6 +20,7 @@ from src.agent.utils.prompt import (
     report_writer_instructions,
     intro_conclusion_instructions,
 )
+from src.agent.utils.search import search_documents
 
 from dotenv import load_dotenv
 
@@ -185,8 +185,6 @@ def save_interview(state: InterviewState):
     return {"interview": interview}
 
 
-tavily_search = TavilySearch(max_results=3)
-
 search_instructions_system_message = SystemMessage(content=search_instructions)
 
 
@@ -201,10 +199,7 @@ def search_web(state: InterviewState, config: RunnableConfig):
         response_schema=SearchQuery,
     )
 
-    # Search
-    # search_docs = tavily_search.invoke(search_query.search_query) # updated 1.0
-    data = tavily_search.invoke({"query": search_query.search_query})
-    search_docs = data.get("results", data)
+    search_docs = search_documents(search_query.search_query, config, max_results=3)
 
     # Format
     formatted_search_docs = "\n\n---\n\n".join(
@@ -227,10 +222,7 @@ def search_web2(state: InterviewState, config: RunnableConfig):
         response_schema=SearchQuery,
     )
 
-    # Search
-    # search_docs = tavily_search.invoke(search_query.search_query) # updated 1.0
-    data = tavily_search.invoke({"query": search_query.search_query})
-    search_docs = data.get("results", data)
+    search_docs = search_documents(search_query.search_query, config, max_results=3)
 
     # Format
     formatted_search_docs = "\n\n---\n\n".join(

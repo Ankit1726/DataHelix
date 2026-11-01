@@ -1,6 +1,8 @@
 const form = document.querySelector("#research-form");
 const topicInput = document.querySelector("#topic");
 const groqApiKeyInput = document.querySelector("#groq-api-key");
+const groqModelInput = document.querySelector("#groq-model");
+const tavilyApiKeyInput = document.querySelector("#tavily-api-key");
 const characterCount = document.querySelector("#character-count");
 const launchButton = document.querySelector("#launch-button");
 const formError = document.querySelector("#form-error");
@@ -87,9 +89,12 @@ form.addEventListener("submit", async (event) => {
         topic,
         max_analysts: Number(document.querySelector("#analyst-count").value),
         groq_api_key: groqApiKeyInput.value.trim() || null,
+        groq_model: groqModelInput.value.trim(),
+        tavily_api_key: tavilyApiKeyInput.value.trim() || null,
       }),
     });
     groqApiKeyInput.value = "";
+    tavilyApiKeyInput.value = "";
     resetActivity(topic);
     activeJobId = result.id;
     storeActiveJob(activeJobId);
@@ -159,19 +164,23 @@ async function checkHealth() {
         item.dataset.service === "GROQ_API_KEY" &&
         !configured &&
         health.personal_groq_key_supported;
-      setConnectionState(item, Boolean(configured), isOptionalGroqKey ? "Optional" : "Not set");
+      const supportsPersonalKey =
+        item.dataset.service === "TAVILY_API_KEY" &&
+        health.personal_tavily_key_supported;
+      setConnectionState(
+        item,
+        Boolean(configured),
+        isOptionalGroqKey || (!configured && supportsPersonalKey) ? "Optional" : "Not set",
+      );
     });
     if (health.ready) {
-      engineStatus.textContent = "Configuration ready";
-      healthNote.textContent = health.services?.GROQ_API_KEY
-        ? "Shared provider credentials are present. Your optional Groq key is used automatically if the shared key is rate-limited."
-        : "Tavily is configured. Add an optional Groq key above, or the shared key will be used if configured.";
+      engineStatus.textContent = "Search configuration ready";
+      healthNote.textContent =
+        "Shared Tavily credentials are present. Optional Groq and Tavily credentials and a custom Groq model can be set for each run.";
     } else {
-      engineStatus.textContent = "Setup needed";
-      const missing = Object.entries(health.services || {})
-        .filter(([key, configured]) => key !== "GROQ_API_KEY" && !configured)
-        .map(([key]) => key);
-      healthNote.textContent = `Configure ${missing.join(" and ")} in the server environment to enable live research. A Groq key can be entered above.`;
+      engineStatus.textContent = "Search key needed";
+      healthNote.textContent =
+        "Enter an optional Tavily key above to enable web research. A Groq key is also needed if no shared Groq key is configured.";
     }
   } catch {
     engineStatus.textContent = "Server unavailable";
