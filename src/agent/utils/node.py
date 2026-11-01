@@ -2,8 +2,9 @@ from langchain.messages import SystemMessage, HumanMessage
 from langchain_tavily import TavilySearch
 from langgraph.types import interrupt
 from langchain_core.messages import get_buffer_string
+from langchain_core.runnables import RunnableConfig
 
-from src.agent.utils.llm import model
+from src.agent.utils.llm import invoke_model
 from src.agent.utils.prompt import search_instructions
 from src.agent.utils.state import InterviewState, SearchQuery
 from src.agent.utils.state import (
@@ -27,7 +28,7 @@ load_dotenv()
 
 
 # nodes
-def create_analysts(state: GenerateAnalystsState):
+def create_analysts(state: GenerateAnalystsState, config: RunnableConfig):
     """Create analysts"""
 
     topic = state["topic"]
@@ -35,10 +36,6 @@ def create_analysts(state: GenerateAnalystsState):
     human_analyst_feedback = state.get("human_analyst_feedback", "")
 
     # Enforce structured output
-    structured_llm = model.with_structured_output(
-        Perspectives, method="json_schema", strict=True
-    )
-
     # System message
     system_message = analyst_instructions.format(
         topic=topic,
@@ -47,9 +44,11 @@ def create_analysts(state: GenerateAnalystsState):
     )
 
     # Generate question
-    analysts = structured_llm.invoke(
+    analysts = invoke_model(
         [SystemMessage(content=system_message)]
-        + [HumanMessage(content="Generate the set of analysts.")]
+        + [HumanMessage(content="Generate the set of analysts.")],
+        config,
+        response_schema=Perspectives,
     )
 
     return {"analysts": [analyst.model_dump() for analyst in analysts.analysts]}
@@ -95,7 +94,7 @@ def dummy(state: GenerateAnalystsState):
     pass
 
 
-def generate_question(state: InterviewState):
+def generate_question(state: InterviewState, config: RunnableConfig):
     """Node to generate a question"""
 
     # Get state
@@ -106,7 +105,9 @@ def generate_question(state: InterviewState):
 
     # Generate question
     system_message = question_instructions.format(goals=analyst.persona)
-    question = model.invoke([SystemMessage(content=system_message)] + messages)
+    question = invoke_model(
+        [SystemMessage(content=system_message)] + messages, config
+    )
 
     # Write messages to state
     return {"messages": [question]}
@@ -125,7 +126,7 @@ def save_interview(state: InterviewState):
     return {"interview": interview}
 
 
-def write_section(state: InterviewState):
+def write_section(state: InterviewState, config: RunnableConfig):
     """Node to answer a question"""
     # Get state
     interview = state["interview"]
@@ -137,16 +138,17 @@ def write_section(state: InterviewState):
 
     # Write section using either the gathered source docs from interview (context) or the interview itself (interview)
     system_message = section_writer_instructions.format(focus=analyst.description)
-    section = model.invoke(
+    section = invoke_model(
         [SystemMessage(content=system_message)]
-        + [HumanMessage(content=f"Use this source to write your section: {context}")]
+        + [HumanMessage(content=f"Use this source to write your section: {context}")],
+        config,
     )
 
     # Append it to state
     return {"sections": [section.content]}
 
 
-def generate_answer(state: InterviewState):
+def generate_answer(state: InterviewState, config: RunnableConfig):
     """Node to answer a question"""
 
     # Get state
@@ -159,7 +161,9 @@ def generate_answer(state: InterviewState):
 
     # Answer question
     system_message = answer_instructions.format(goals=analyst.persona, context=context)
-    answer = model.invoke([SystemMessage(content=system_message)] + messages)
+    answer = invoke_model(
+        [SystemMessage(content=system_message)] + messages, config
+    )
 
     # Name the message as coming from the expert
     answer.name = "expert"
@@ -187,15 +191,14 @@ search_instructions_system_message = SystemMessage(content=search_instructions)
 
 
 # node
-def search_web(state: InterviewState):
+def search_web(state: InterviewState, config: RunnableConfig):
     """Retrieve docs from web search"""
 
     # Search query
-    structured_llm = model.with_structured_output(
-        SearchQuery, method="json_schema", strict=True
-    )
-    search_query = structured_llm.invoke(
-        [search_instructions_system_message] + state["messages"]
+    search_query = invoke_model(
+        [search_instructions_system_message] + state["messages"],
+        config,
+        response_schema=SearchQuery,
     )
 
     # Search
@@ -214,15 +217,14 @@ def search_web(state: InterviewState):
     return {"context": [formatted_search_docs]}
 
 
-def search_web2(state: InterviewState):
+def search_web2(state: InterviewState, config: RunnableConfig):
     """Retrieve docs from web search"""
 
     # Search query
-    structured_llm = model.with_structured_output(
-        SearchQuery, method="json_schema", strict=True
-    )
-    search_query = structured_llm.invoke(
-        [search_instructions_system_message] + state["messages"]
+    search_query = invoke_model(
+        [search_instructions_system_message] + state["messages"],
+        config,
+        response_schema=SearchQuery,
     )
 
     # Search
@@ -241,7 +243,7 @@ def search_web2(state: InterviewState):
     return {"context": [formatted_search_docs]}
 
 
-def write_report(state: ResearchGraphState):
+def write_report(state: ResearchGraphState, config: RunnableConfig):
     # Full set of sections
     sections = state["sections"]
     topic = state["topic"]
@@ -253,14 +255,15 @@ def write_report(state: ResearchGraphState):
     system_message = report_writer_instructions.format(
         topic=topic, context=formatted_str_sections
     )
-    report = model.invoke(
+    report = invoke_model(
         [SystemMessage(content=system_message)]
-        + [HumanMessage(content=f"Write a report based upon these memos.")]
+        + [HumanMessage(content=f"Write a report based upon these memos.")],
+        config,
     )
     return {"content": report.content}
 
 
-def write_introduction(state: ResearchGraphState):
+def write_introduction(state: ResearchGraphState, config: RunnableConfig):
     # Full set of sections
     sections = state["sections"]
     topic = state["topic"]
@@ -273,13 +276,14 @@ def write_introduction(state: ResearchGraphState):
     instructions = intro_conclusion_instructions.format(
         topic=topic, formatted_str_sections=formatted_str_sections
     )
-    intro = model.invoke(
-        [instructions] + [HumanMessage(content=f"Write the report introduction")]
+    intro = invoke_model(
+        [instructions] + [HumanMessage(content=f"Write the report introduction")],
+        config,
     )
     return {"introduction": intro.content}
 
 
-def write_conclusion(state: ResearchGraphState):
+def write_conclusion(state: ResearchGraphState, config: RunnableConfig):
 
     # Full set of sections
     sections = state["sections"]
@@ -293,8 +297,9 @@ def write_conclusion(state: ResearchGraphState):
     instructions = intro_conclusion_instructions.format(
         topic=topic, formatted_str_sections=formatted_str_sections
     )
-    conclusion = model.invoke(
-        [instructions] + [HumanMessage(content=f"Write the report conclusion")]
+    conclusion = invoke_model(
+        [instructions] + [HumanMessage(content=f"Write the report conclusion")],
+        config,
     )
     return {"conclusion": conclusion.content}
 

@@ -1,7 +1,8 @@
 from langchain_tavily import TavilySearch
 from langchain.messages import SystemMessage
+from langchain_core.runnables import RunnableConfig
 
-from src.agent.utils.llm import model
+from src.agent.utils.llm import invoke_model
 from src.agent.utils.prompt import search_instructions
 from src.agent.utils.state import InterviewState, SearchQuery
 
@@ -9,15 +10,14 @@ tavily_search = TavilySearch(max_results=4)
 search_instructions_system_message = SystemMessage(content=search_instructions)
 
 # node
-def search_web(state: InterviewState):
+def search_web(state: InterviewState, config: RunnableConfig):
     """Retrieve docs from web search"""
 
     # Search query
-    structured_llm = model.with_structured_output(
-        SearchQuery, method="json_schema", strict=True
-    )
-    search_query = structured_llm.invoke(
-        [search_instructions_system_message] + state["messages"]
+    search_query = invoke_model(
+        [search_instructions_system_message] + state["messages"],
+        config,
+        response_schema=SearchQuery,
     )
 
     # Search
@@ -36,15 +36,14 @@ def search_web(state: InterviewState):
     return {"context": [formatted_search_docs]}
 
 
-def search_web2(state: InterviewState):
+def search_web2(state: InterviewState, config: RunnableConfig):
     """Retrieve docs from web search"""
 
     # Search query
-    structured_llm = model.with_structured_output(
-        SearchQuery, method="json_schema", strict=True
-    )
-    search_query = structured_llm.invoke(
-        [search_instructions_system_message] + state["messages"]
+    search_query = invoke_model(
+        [search_instructions_system_message] + state["messages"],
+        config,
+        response_schema=SearchQuery,
     )
 
     # Search

@@ -132,6 +132,12 @@
                 </div>
                 <div class="topic-hint"><span class="hint-dot"></span> Be specific for more focused, useful findings.
                 </div>
+                <div class="api-key-field">
+                  <label class="field-label" for="groq-api-key">Your Groq API key <span>(optional)</span></label>
+                  <input id="groq-api-key" name="groq_api_key" type="password" maxlength="512" autocomplete="off"
+                    spellcheck="false" placeholder="enter your groq key">
+                  <p class="api-key-hint">Used automatically if the shared Groq key is unavailable or rate-limited.</p>
+                </div>
 
                 <div class="form-footer">
                   <label class="analyst-select-label" for="analyst-count">
@@ -176,7 +182,8 @@
                 <span class="run-status" id="run-status" data-state="idle"><span class="tiny-dot"></span><span
                     id="run-status-text">Idle</span></span>
               </div>
-              <p class="activity-topic" id="activity-topic">Launch a research run to see its live status and report here.</p>
+              <p class="activity-topic" id="activity-topic">Launch a research run to see its live status and report
+                here.</p>
               <div class="progress-track" aria-hidden="true"><span id="progress-fill"></span></div>
               <div class="workflow-steps" id="workflow-steps">
                 <div class="workflow-step" data-step="analysts"><span class="step-number">01</span><span
@@ -202,7 +209,7 @@
                     placeholder="Optional feedback before continuing, or add notes above and request revised analysts."></textarea>
                   <div class="approval-actions">
                     <button class="button button-quiet" id="revise-button" type="button">Request revisions</button>
-                    <button class="button button-primary" id="approve-button" type="button">Looks good — start research
+                    <button class="button button-primary" id="approve-button" type="button">Looks good start research
                       <span>→</span></button>
                   </div>
                 </div>

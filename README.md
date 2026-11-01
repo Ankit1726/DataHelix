@@ -60,6 +60,7 @@
 - 🧾 Final structured report that combines all findings
 - 📊 Research activity tracker showing the current stage
 - ⚙️ Service configuration panel showing Groq, Tavily and LangGraph status
+- 🔑 Optional personal Groq API key with automatic fallback when the shared key is rate-limited and extra retries for transient personal-key rate limits
 - 💡 One-click starter prompts (AI in software teams, Urban food waste, Creator economy)
 - 🌑 Modern dark-theme interface
 
@@ -153,6 +154,7 @@ Question → Analyst team generated
 - LLM output can contain mistakes; always verify important claims against the sources.
 - Free-tier hosting may have cold starts and non-persistent storage.
 - Groq and Tavily require network access, valid API keys and are subject to rate limits.
+- A personal Groq key can be entered per research run. It is sent only to the backend for that run, kept in memory while the workflow is active, and never saved in the browser or returned by the API.
 
 ---
 

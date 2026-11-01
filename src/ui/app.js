@@ -1,5 +1,6 @@
 const form = document.querySelector("#research-form");
 const topicInput = document.querySelector("#topic");
+const groqApiKeyInput = document.querySelector("#groq-api-key");
 const characterCount = document.querySelector("#character-count");
 const launchButton = document.querySelector("#launch-button");
 const formError = document.querySelector("#form-error");
@@ -85,8 +86,10 @@ form.addEventListener("submit", async (event) => {
       body: JSON.stringify({
         topic,
         max_analysts: Number(document.querySelector("#analyst-count").value),
+        groq_api_key: groqApiKeyInput.value.trim() || null,
       }),
     });
+    groqApiKeyInput.value = "";
     resetActivity(topic);
     activeJobId = result.id;
     storeActiveJob(activeJobId);
@@ -152,17 +155,23 @@ async function checkHealth() {
     const health = await request("/api/health");
     document.querySelectorAll("[data-service]").forEach((item) => {
       const configured = health.services?.[item.dataset.service];
-      setConnectionState(item, Boolean(configured));
+      const isOptionalGroqKey =
+        item.dataset.service === "GROQ_API_KEY" &&
+        !configured &&
+        health.personal_groq_key_supported;
+      setConnectionState(item, Boolean(configured), isOptionalGroqKey ? "Optional" : "Not set");
     });
     if (health.ready) {
       engineStatus.textContent = "Configuration ready";
-      healthNote.textContent = "Provider credentials are present. Connectivity is verified when a research run starts.";
+      healthNote.textContent = health.services?.GROQ_API_KEY
+        ? "Shared provider credentials are present. Your optional Groq key is used automatically if the shared key is rate-limited."
+        : "Tavily is configured. Add an optional Groq key above, or the shared key will be used if configured.";
     } else {
       engineStatus.textContent = "Setup needed";
       const missing = Object.entries(health.services || {})
-        .filter(([, configured]) => !configured)
+        .filter(([key, configured]) => key !== "GROQ_API_KEY" && !configured)
         .map(([key]) => key);
-      healthNote.textContent = `Configure ${missing.join(" and ")} in the server environment to enable live research.`;
+      healthNote.textContent = `Configure ${missing.join(" and ")} in the server environment to enable live research. A Groq key can be entered above.`;
     }
   } catch {
     engineStatus.textContent = "Server unavailable";
@@ -187,6 +196,7 @@ function resetActivity(topic) {
   analystsSection.hidden = true;
   approvalControls.hidden = true;
   reportSection.hidden = true;
+  runError.textContent = "";
   runError.hidden = true;
   analystGrid.replaceChildren();
   reportContent.replaceChildren();
